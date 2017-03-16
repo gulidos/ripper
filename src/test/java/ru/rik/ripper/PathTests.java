@@ -56,5 +56,13 @@ public class PathTests {
 		Assert.assertEquals(a.substring(9), String.valueOf(i));
 	}
 	
+	@Test
+	public void mathTest(){
+		int x =12;
+		Assert.assertFalse(Math.sqrt(x)  % 1 == 0);
+		x= 16;
+		Assert.assertTrue(Math.sqrt(x)  % 1 == 0);
+	}
+	
 }
 
