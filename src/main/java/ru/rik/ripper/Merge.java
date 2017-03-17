@@ -11,6 +11,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -68,8 +69,7 @@ public class Merge {
 						+ result.size());
 				Map<String, int[]> map = result.stream()
 					.map(s -> s.split(","))
-					.filter(a -> a.length ==5)
-					.filter(a -> a[0].length() == 10)
+					.filter(a -> a.length ==5 && a[0].length() == 10)
 					.filter(a -> a[0].substring(9).equals(String.valueOf(i)))
 					.collect(Collectors.groupingBy(a -> a[0], new MergeCollector()));
 				
@@ -78,9 +78,10 @@ public class Merge {
 				Files.move(newPartition, partition, StandardCopyOption.REPLACE_EXISTING);
 			} 
 		}
-		
 	}
 
+	
+	
 	public static void main(String[] args) throws IOException {
 		Merge m = new Merge();
 		m.init();
