@@ -34,9 +34,7 @@ public class Routes {
 			.filter(a -> a.length > 2)
 			.map(a -> new Route(a))
 			.forEach(r -> newmap.put(r.getFromd(), r));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		} 
 		map = newmap;
 		return map.size();
 	}
