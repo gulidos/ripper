@@ -46,6 +46,7 @@ public class PathTests {
 	public void normalizeTest() {
 		RipDay r = new RipDay();
 		Assert.assertEquals(r.normalize("79123456789"), "9123456789");
+		Assert.assertEquals(r.normalize("+79123456789"), "9123456789");
 	}
 	
 	@Test

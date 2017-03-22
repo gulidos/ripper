@@ -10,7 +10,10 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,8 +23,8 @@ import java.util.zip.GZIPInputStream;
 
 import ru.rik.ripper.domain.Oper;
 import ru.rik.ripper.domain.Pair;
-import ru.rik.ripper.domain.Route;
 import ru.rik.ripper.domain.Pair.Direction;
+import ru.rik.ripper.domain.Route;
 import ru.rik.ripper.services.Bdpn;
 import ru.rik.ripper.services.Helper;
 import ru.rik.ripper.services.PairCollector;
@@ -38,6 +41,8 @@ public class RipDay {
 	private int aField = 0;
 	private int bField = 1;
 	private String delimiter = ";" ;
+	private boolean peek = true;
+	private boolean parallel = false;
 	private Path out;
 	
 	public RipDay() {
@@ -54,6 +59,8 @@ public class RipDay {
 	public String normalize(String n) {
 		if (n.length() == 11 && (n.startsWith("89") || n.startsWith("79"))) 
 			return n.substring(1);
+		if (n.length() == 12 && n.startsWith("+"))
+			return n.substring(2);
 		return n;
 	}
 	
@@ -85,7 +92,8 @@ public class RipDay {
 	public Map<String, Map<String, int[]>> rip(Stream<String> stream) {
 		Map<String, Map<String, int[]>> m = stream 
 		.map(s -> s.split(delimiter))
-		.filter(s -> s.length > 2)
+		.filter(s -> s.length > bField)
+		.peek(a -> {if (peek) System.out.println(a[aField] + "->" + a[bField]);})
 		.map(a -> getPairs(a))
 		.flatMap(pair -> Arrays.stream(pair))
 		.filter(pair -> pair != null)
@@ -98,11 +106,15 @@ public class RipDay {
 	
 	
 	private void processFiles(String files) throws IOException {
-		DirectoryStream<Path> stream = Helper.getDirectoryStream(files);
-		for (Path path : stream) {
+		List<Path> paths = new ArrayList<>();
+		try (DirectoryStream<Path> ds = Helper.getDirectoryStream(files)) {
+			Iterator<Path> i = ds.iterator();
+			while (i.hasNext())
+				paths.add(i.next());
+		}
+		paths.parallelStream().forEach(path -> {
 			System.out.print("Processing file " + path.getFileName() + " ");
 			try (InputStream fis = Files.newInputStream(path);
-//					GZIPInputStream zis = new GZIPInputStream(fis);
 					BufferedReader br =  path.getFileName().toString().endsWith("gz") ?
 							new BufferedReader(new InputStreamReader(new GZIPInputStream(fis))): 
 							new BufferedReader(new InputStreamReader(fis));
@@ -120,9 +132,8 @@ public class RipDay {
 				wrongRoute.set(0);
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw e;
 			}
-		}
+		});
 	}
 	
 	
@@ -141,13 +152,15 @@ public class RipDay {
 		aField = Integer.parseInt(conf.getProperty("aField", "1"));
 		bField = Integer.parseInt(conf.getProperty("bField", "2"));
 		delimiter = conf.getProperty("delimiter", ",");
-		excludeBdpn = "true".equals(
-				conf.getProperty("excludeBdpn", "true"));
+		excludeBdpn = "true".equals(conf.getProperty("excludeBdpn", "true").trim());
+		peek = "true".equals(conf.getProperty("peek", "true").trim());
+		
+		parallel = "true".equals(conf.getProperty("parallel", "true").trim());
 		out = Paths.get(conf.getProperty("out", 
 				System.getProperty("user.dir") + "/out"));
 		
 		System.out.println("parameters: a=" + aField + " b=" + bField 
-				+ " delim=" + delimiter + " excludeBdpn=" + excludeBdpn);
+				+ " delim=" + delimiter + " excludeBdpn=" + excludeBdpn + " peek=" + peek + " parallel=" + parallel);
 		String routes_file = conf.getProperty("routes_file", 
 							"Numbering_plan_201702050000_1174.csv");
 		routes = new Routes();

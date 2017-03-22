@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
@@ -36,19 +37,25 @@ public class Merge {
 	}
 	
 	
-	int i = 0; //to have access from lambda
+
 	public void merge() throws IOException {
-//		https://www.techempower.com/blog/2016/10/19/efficient-multiple-stream-concatenation-in-java/
-//		IntStream.rangeClosed(0, 9).parallel().forEach( i -> System.out.println(i));
-		for ( i = 0; i <= 9; i++) {
+		IntStream.rangeClosed(0, 9).parallel().forEach( i -> 
+//		for ( i = 0; i <= 9; i++) 
+		{
 			Path partition = res.resolve(Paths.get("part_" + i + ".gz"));
-			DirectoryStream<Path> stream = Helper.getDirectoryStream(out.toString() + "/*_" + i + ".gz");
+			DirectoryStream<Path> ds = null;
+			try {
+				ds = Helper.getDirectoryStream(out.toString() + "/*_" + i + ".gz");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 			List<String> result = null;
 			try (GZIPInputStream zisp = new GZIPInputStream(Files.newInputStream(partition));
 					BufferedReader brPartition = new BufferedReader(new InputStreamReader(zisp));
 					Stream<String> partitionStream = brPartition.lines()) 
 			{
-				for (Path newFile : stream) {
+				for (Path newFile : ds) {
 					System.out.print("  " + newFile.getFileName().toString());
 					try (GZIPInputStream zisNew = new GZIPInputStream(Files.newInputStream(newFile));
 							BufferedReader brNew = new BufferedReader(new InputStreamReader(zisNew));
@@ -75,8 +82,11 @@ public class Merge {
 				Path newPartition = Paths.get(partition.toString() + ".new");
 				Helper.save(newPartition, map);
 				Files.move(newPartition, partition, StandardCopyOption.REPLACE_EXISTING);
-			} 
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+		);
 	}
 
 	
