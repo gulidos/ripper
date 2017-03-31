@@ -11,15 +11,6 @@ import ru.rik.ripper.services.Helper;
 
 public class PathTests {
 
-	@Test
-	public void test() {
-//		Path p = Paths.get("/Users/gsv/pgadmin.log");
-//		Assert.assertEquals(Helper.getFileExtension(p), "log");
-//		System.out.println(p.getFileName());
-//		System.out.println(p.toString());
-//		System.out.println(p.getNameCount());
-//		System.out.println(p.getRoot());
-	}
 	
 	@Test
 	public void partitionTest() {

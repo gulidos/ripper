@@ -59,10 +59,9 @@ public class BuildWl {
 	}
 	
 	
-	private boolean isGood(String[] a) { //the first element is number
+	private boolean isGood(String[] a) { //the first element is a number itself 
 		int fromMe = Integer.parseInt(a[1]);
 		int toMe = Integer.parseInt(a[3]);
-//		if (0 < fromMe && fromMe < maxFrom && 0 < toMe && toMe < maxTo)
 		if (0 < fromMe && fromMe < maxFrom && toMe < maxTo)
 			return true;
 		return false;

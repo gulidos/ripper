@@ -83,8 +83,5 @@ public class Bdpn {
 		start = System.nanoTime();
 		b.dumpBdpn(Paths.get("/opt/ripper/bdpnMap.ser.gz"));
 		System.out.println("written " + " in " + String.valueOf(System.nanoTime() - start));
-//		
-//		b.loadBdpnSer(Paths.get("/opt/ripper/bdpnMap.ser.gz"));
-//		System.out.println("read " + " in " + String.valueOf(System.nanoTime() - start));
 	}
 }

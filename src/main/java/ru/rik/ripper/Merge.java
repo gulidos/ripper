@@ -39,9 +39,7 @@ public class Merge {
 	
 
 	public void merge() throws IOException {
-		IntStream.rangeClosed(0, 9).parallel().forEach( i -> 
-//		for ( i = 0; i <= 9; i++) 
-		{
+		IntStream.rangeClosed(0, 9).parallel().forEach( i -> {
 			Path partition = res.resolve(Paths.get("part_" + i + ".gz"));
 			DirectoryStream<Path> ds = null;
 			try {
