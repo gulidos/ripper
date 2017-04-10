@@ -48,25 +48,23 @@ public class Bdpn {
 	public void dumpBdpn(Path file) throws IOException {
 		try (  OutputStream fos =	Files.newOutputStream(file);
 				GZIPOutputStream zip = new GZIPOutputStream(fos);
-				ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(zip, 1024));) {
+				ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(zip, 1024));) 
+		{
 			oos.writeObject(set);
-		} catch (IOException ioe) {
-			throw ioe;
-		}
+		} 
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	public void loadBdpnSer(Path file) {
+	public void loadBdpnSer(Path file) throws IOException, ClassNotFoundException {
 		try (  InputStream fis = Files.newInputStream(file);
 				GZIPInputStream zip = new GZIPInputStream(fis);
-				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(zip, 1024));) {
+				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(zip, 1024));) 
+		{
 			Set<String > newBdpnMap = new HashSet<String>();
 			newBdpnMap = (Set<String >) ois.readObject();
 			set = newBdpnMap;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		} 
 	}
 
 	
