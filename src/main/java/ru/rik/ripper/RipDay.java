@@ -46,7 +46,7 @@ public class RipDay {
 	private Path out;
 	
 	public RipDay() {
-		inBdpn = new AtomicInteger(0);
+		inBdpn = new AtomicInteger(0); 
 		wrongRoute = new AtomicInteger(0);
 	}
 
