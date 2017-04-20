@@ -59,7 +59,8 @@ public class Bdpn {
 	public void loadBdpnSer(Path file) throws IOException, ClassNotFoundException {
 		try (  InputStream fis = Files.newInputStream(file);
 				GZIPInputStream zip = new GZIPInputStream(fis);
-				ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(zip, 1024));) 
+				BufferedInputStream bis = new BufferedInputStream(zip, 1024);
+				ObjectInputStream ois = new ObjectInputStream(bis);) 
 		{
 			Set<String > newBdpnMap = new HashSet<String>();
 			newBdpnMap = (Set<String >) ois.readObject();

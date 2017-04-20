@@ -1,9 +1,12 @@
 package ru.rik.ripper.domain;
 
-public class Route {
-	 private final long fromd;
-	 private final long tod;
-	 private final Oper oper;
+import java.io.Serializable;
+
+public class Route implements Serializable {
+	private static final long serialVersionUID = 1L;
+	private final long fromd;
+	private final long tod;
+	private final Oper oper;
 	public final static Route NULL_ROUTE = new Route(0, 0, Oper.UNKNOWN);
 
 	
