@@ -40,10 +40,10 @@ public class StringStream implements AutoCloseable {
 	@Override
 	public void close() throws Exception {
 		if (stream != null) stream.close();
-		br.close();
-		isr.close();
-		zisp.close();
-		is.close();
+		if (br != null)	br.close();
+		if (isr != null) isr.close();
+		if (zisp != null) zisp.close();
+		if (is != null)  is.close();
 	}
 	
 	public Stream<String> lines() {
