@@ -72,7 +72,7 @@ public class Helper {
 	public static Properties getProperties() throws IOException {
 		Properties properties = new Properties();
 		Path confFile = Paths.get("ripper.conf");
-		try (BufferedReader br = Files.newBufferedReader(confFile);) {
+		try (BufferedReader br = Files.newBufferedReader(confFile)) {
 			properties.load(br);
 		} catch (IOException e) {
 			throw e;
@@ -84,7 +84,6 @@ public class Helper {
 	public static String entryToString(Entry<String, int[]> e ) {
 		int[] v = e.getValue();
 		StringBuilder sb = new StringBuilder(e.getKey());
-
 		for (int i = 0; i < v.length; i++) 
 			sb.append(",").append(v[i]);
 		return sb.toString();		

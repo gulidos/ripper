@@ -6,6 +6,7 @@ public class Pair {
 	private final String n1; 
 	private final String n2;
 	private final Direction d;
+	
 	public Pair(String n1, String n2, Direction d) {
 		super();
 		this.n1 = n1;

@@ -2,7 +2,6 @@ package ru.rik.ripper.services;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -10,13 +9,13 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipFile;
+
+import ru.rik.ripper.utils.StringStream;
 
 public class Bdpn {
 	private Set<String > set;
@@ -31,9 +30,7 @@ public class Bdpn {
 	
 	
 	public int load(Path path) throws IOException {
-		try (ZipFile zipFile = new ZipFile(path.toFile());
-				BufferedReader br = Helper.zipToBufferedReader(zipFile);
-				Stream<String> strm = br.lines())
+		try (Stream<String> strm = StringStream.of(path).lines())
 		{
 			strm
 			.skip(1)
@@ -65,21 +62,5 @@ public class Bdpn {
 			newBdpnMap = (Set<String >) ois.readObject();
 			set = newBdpnMap;
 		} 
-	}
-
-	
-
-
-	
-	public static void main(String[] args) throws IOException {
-		Path path = Paths.get("/opt/ripper/Port_All_201703070000_1203.zip");
-		Bdpn b = new Bdpn();
-		
-		long start = System.nanoTime();
-		int n = b.load(path);
-		System.out.println("loaded " + n + " in " + String.valueOf(System.nanoTime() - start));
-		start = System.nanoTime();
-		b.dumpBdpn(Paths.get("/opt/ripper/bdpnMap.ser.gz"));
-		System.out.println("written " + " in " + String.valueOf(System.nanoTime() - start));
 	}
 }

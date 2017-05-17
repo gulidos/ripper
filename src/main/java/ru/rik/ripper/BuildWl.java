@@ -1,9 +1,7 @@
 package ru.rik.ripper;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.file.DirectoryStream;
@@ -12,10 +10,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import ru.rik.ripper.services.Helper;
+import ru.rik.ripper.utils.StringStream;
 
 public class BuildWl {
 	private Path res;
@@ -38,24 +36,25 @@ public class BuildWl {
 				GZIPOutputStream zip = new GZIPOutputStream(fos);
 				PrintWriter pw = new PrintWriter(new BufferedOutputStream(zip))) 
 		{
-			DirectoryStream<Path> partitions = Helper.getDirectoryStream(res.resolve("part*").toString());
-			partitions.forEach(p -> {
-				System.out.println(p);
-				try (GZIPInputStream zisp = new GZIPInputStream(Files.newInputStream(p));
-						BufferedReader brP = new BufferedReader(new InputStreamReader(zisp));
-						Stream<String> pStream = brP.lines()) 
-				{
-					pStream
-					.map(s -> s.split(","))
-					.filter(a -> a.length ==5)
-					.filter(a -> isGood(a))
-					.map(a -> String.join(",", a))
-					.forEach(e -> pw.println(e));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			});
+			DirectoryStream<Path> partitions = 
+					Helper.getDirectoryStream(res.resolve("part*").toString());
+			partitions.forEach(p -> buildPart(pw, p));
 		} 
+	}
+
+	private void buildPart(PrintWriter pw, Path p) {
+		System.out.println(p);
+		try (Stream<String> pStream = StringStream.of(p).lines()) 
+		{
+			pStream
+			.map(s -> s.split(","))
+			.filter(a -> a.length ==5)
+			.filter(a -> isGood(a))
+			.map(a -> String.join(",", a))
+			.forEach(e -> pw.println(e));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

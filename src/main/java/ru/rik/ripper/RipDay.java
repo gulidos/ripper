@@ -2,12 +2,8 @@ package ru.rik.ripper;
 
 import static java.util.stream.Collectors.groupingBy;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,7 +15,6 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import java.util.zip.GZIPInputStream;
 
 import ru.rik.ripper.domain.Oper;
 import ru.rik.ripper.domain.Pair;
@@ -29,6 +24,7 @@ import ru.rik.ripper.services.Bdpn;
 import ru.rik.ripper.services.Helper;
 import ru.rik.ripper.services.PairCollector;
 import ru.rik.ripper.services.Routes;
+import ru.rik.ripper.utils.StringStream;
 
 public class RipDay {
 	private final Pattern mob = Pattern.compile("^9\\d{9}$");
@@ -79,7 +75,6 @@ public class RipDay {
 			inBdpn.incrementAndGet();
 			return false;
 		}
-
 		Route r = routes.get(Long.decode(n));
 		if (r.getOper() == Oper.UNKNOWN) {
 			wrongRoute.incrementAndGet();
@@ -112,28 +107,26 @@ public class RipDay {
 			while (i.hasNext())
 				paths.add(i.next());
 		}
-		paths.parallelStream().forEach(path -> {
-			System.out.print("Processing file " + path.getFileName() + " ");
-			try (InputStream fis = Files.newInputStream(path);
-					BufferedReader br =  path.getFileName().toString().endsWith("gz") ?
-							new BufferedReader(new InputStreamReader(new GZIPInputStream(fis))): 
-							new BufferedReader(new InputStreamReader(fis));
-					Stream<String> strm = br.lines())
-			{
-				Map<String, Map<String, int[]>>  map = rip(strm);
-				System.out.println("saving results for " + path.getFileName());
-				map.entrySet().stream()
-					.forEach(m -> 
-						Helper.save(Helper.getPartitionFile(path, out, m.getKey()), m.getValue()));
-				
-				System.out.println("bdpn excluded: " 
-						+ inBdpn.get() + " wrong route " + wrongRoute.get());
-				inBdpn.set(0);
-				wrongRoute.set(0);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		});
+		paths.parallelStream().forEach(path -> processFile(path));
+	}
+
+	private void processFile(Path path) {
+		System.out.print("Processing file " + path.getFileName() + " ");
+		try (Stream<String> strm = StringStream.of(path).lines())
+		{
+			Map<String, Map<String, int[]>>  map = rip(strm);
+			System.out.println("saving results for " + path.getFileName());
+			map.entrySet().stream()
+				.forEach(m -> 
+					Helper.save(Helper.getPartitionFile(path, out, m.getKey()), m.getValue()));
+			
+			System.out.println("bdpn excluded: " 
+					+ inBdpn.get() + " wrong route " + wrongRoute.get());
+			inBdpn.set(0);
+			wrongRoute.set(0);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

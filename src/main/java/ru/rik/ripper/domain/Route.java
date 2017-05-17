@@ -1,5 +1,7 @@
 package ru.rik.ripper.domain;
 
+import java.util.Optional;
+
 public class Route {
 	 private final long fromd;
 	 private final long tod;
@@ -14,10 +16,15 @@ public class Route {
 		this.oper = oper;
 	}
 	
-	public  Route(String[] a) {
-		this(Long.valueOf(a[0]), 
-				Long.valueOf(a[1]), 
-				Oper.findByMnc(Integer.valueOf(a[4])));
+	public static Optional<Route> parse(String[] a) {
+		try {
+			return Optional.of(new Route(Long.valueOf(a[0]), 
+					Long.valueOf(a[1]), 
+					Oper.findByMnc(Integer.valueOf(a[4]))));
+		} catch (Exception e) {
+			return Optional.empty();
+		}
+		
 	}
 	
 	public boolean isIn(Long number) {
